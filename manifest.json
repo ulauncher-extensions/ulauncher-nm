@@ -1,6 +1,5 @@
 {
-  "manifest_version": "1",
-  "api_version": "1",
+  "required_api_version": "^2.0.0",
   "name": "NetworkManager",
   "description": "Quick access to nm-cli",
   "developer_name": "alsvartr",
@@ -42,14 +41,14 @@
       "type": "input",
       "name": "Rescan WIFI interval (in seconds)",
       "description": "Time interval of WIFI networks rescan",
-      "default_value": "120"
+      "default_value": "0"
     },
     {
       "id": "rescan_wait",
       "type": "input",
       "name": "Rescan WIFI wait time",
       "description": "How much time to wait for wifi networks rescan results (in seconds)",
-      "default_value": "2"
+      "default_value": "0"
     }
   ]
 }
