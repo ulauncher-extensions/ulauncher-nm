@@ -132,7 +132,7 @@ class NMExtension(Extension):
         return items
 
     def clean_input(self, word):
-        return word.replace("\\", "")
+        return word.replace("\\:", ";")
 
     def list_wifi(self, query):
         global profiles, last_scan
@@ -152,30 +152,29 @@ class NMExtension(Extension):
                 last_scan = time_now
 
                 wifis = os.popen('nmcli -t device wifi list').read().rstrip()
+                wifis = self.clean_input(wifis)
                 wifis = wifis.split("\n")
 
                 for w in wifis:
                     wifi = w.split(":")
-                    active = self.clean_input(wifi[0])
-                    name = self.clean_input(wifi[7])
-                    speed = self.clean_input(wifi[4])
-                    signal = self.clean_input(wifi[5])
-                    security = self.clean_input(wifi[13])
+                    active = wifi[0]
+                    # bssid = wifi[1]
+                    name = wifi[2]
+                    # mode = wifi[3]
+                    # channel = wifi[4]
+                    speed = wifi[5]
+                    signal = int(wifi[6])
+                    # bars = wifi[7]
+                    security = wifi[8]
                     if active == "*":
                         name += " (Active)"
 
-                    signal_dec = 100
-                    try:
-                        signal_dec = int(signal)
-                    except:
-                        signal_dec = int(signal, 16)
-
                     icon = "wifi-n3"
-                    if signal_dec > 70:
+                    if signal > 70:
                         icon = "wifi-n3"
-                    if signal_dec > 30 and signal_dec < 70:
+                    if signal > 30 and signal < 70:
                         icon = "wifi-n2"
-                    if int(signal_dec) < 30:
+                    if int(signal) < 30:
                         icon = "wifi-n1"
                     profiles[name] = name
                     desc = "Speed: %s, Security: %s, Signal: %s" % (speed, security, signal)
@@ -223,7 +222,6 @@ class KeywordQueryEventListener(EventListener):
             return RenderResultListAction(profiles_list[:15])
 
         if keyword == extension.preferences["nm-wifi"]:
-            print("here")
             term = (event.get_argument() or "").lower()
             profiles_list = extension.list_wifi(term)
             return RenderResultListAction(profiles_list[:15])
