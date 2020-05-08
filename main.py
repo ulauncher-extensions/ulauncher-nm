@@ -158,7 +158,7 @@ class NMExtension(Extension):
                 for w in wifis:
                     wifi = w.split(":")
                     active = wifi[0]
-                    # bssid = wifi[1]
+                    bssid = wifi[1]
                     name = wifi[2]
                     # mode = wifi[3]
                     # channel = wifi[4]
@@ -166,6 +166,8 @@ class NMExtension(Extension):
                     signal = int(wifi[6])
                     # bars = wifi[7]
                     security = wifi[8]
+                    if bssid =="--":
+                        continue
                     if active == "*":
                         name += " (Active)"
 
@@ -178,9 +180,8 @@ class NMExtension(Extension):
                         icon = "wifi-n1"
                     profiles[name] = name
                     desc = "Speed: %s, Security: %s, Signal: %s" % (speed, security, signal)
-                    print(query)
-                    # if (query in name.lower()) or (query in desc.lower()):
-                    items_cache.append(create_item(name, desc, icon, {"mod": "wifi", "name": name}))
+                    if (query in name.lower()) or (query in desc.lower()):
+                        items_cache.append(create_item(name, desc, icon, {"mod": "wifi", "name": name}))
         except Exception as e:
             logger.error("Failed to get WIFI networks")
 
@@ -249,6 +250,8 @@ class ItemEnterEventListener(EventListener):
                 return 0
 
         if (mod == "wifi") or (mod == "vpn"):
+            if "(Active)" in on_enter:
+                return 0
             state = os.popen("nmcli -g GENERAL.STATE connection show \"%s\"" % on_enter).read().rstrip()
             if state == "activated":
                 return os.popen("nmcli connection down \"%s\"" % on_enter)
